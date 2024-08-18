@@ -1,0 +1,13 @@
+#!/bin/bash
+
+echo "NAME                                READY   STATUS    RESTARTS   AGE                                                                                                                      -- INSERT --
+nginx-deployment-66b6c48dd5-8fhgs   1/1     Running   0          3m
+nginx-deployment-66b6c48dd5-kj7m8   1/1     Running   0          3m
+nginx-deployment-66b6c48dd5-kwd7r   1/1     Running   0          3m
+frontend-5d5d54d8d9-6mrlx            1/1     Running            0          10m
+backend-6c6b49f5f7-pj9sb             1/1     Running            1          15m
+database-7f7c64fdfd-vfnc2            1/1     Running            0          20m
+cache-8c8d54dd9f-nj6z7               1/1     Running            0          25m
+logging-9c9f64fdfd-kc8l3             1/1     Running            2          30m
+auth-service-7f7c54d8d9-8z9x2        1/1     CrashLoopBackOff   5          35m"
+
