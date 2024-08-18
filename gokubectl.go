@@ -12,10 +12,16 @@ import (
 
 func main() {
 
+	var podName string
+	flag.StringVar(&podName, "pn", "", "partial of full podname in the format of -pn=nginx")
 	var ports string
 	flag.StringVar(&ports, "p", "", "ports in the format of -p=toPort:fromPort")
 	flag.Parse()
 
+	if podName == "" {
+		fmt.Println("Please specify the pod name as pn=<podname>")
+		return
+	}
 	if !isPortParamValid(ports) {
 		return
 	}
@@ -24,7 +30,7 @@ func main() {
 	kubectlCmd := exec.Command("/home/rado/sw/go/gokubectl/kubectl", "get", "pods")
 
 	// Create a pipe for the grep command
-	grepCmd := exec.Command("grep", "nginx")
+	grepCmd := exec.Command("grep", podName)
 
 	var kubectlOut bytes.Buffer
 	var kubectlErr bytes.Buffer
@@ -48,12 +54,17 @@ func main() {
 
 	err = grepCmd.Run()
 	if err != nil {
+		fmt.Printf("Pod not found: %s\n", podName)
 		fmt.Println("Error executing grep command:", err)
 		fmt.Println("Grep Stderr:", grepErr.String())
 		return
 	}
 	filteredOutput := grepOut.String()
 	lines := strings.Split(filteredOutput, "\n")
+	if len(lines) == 0 {
+		fmt.Println("Pod not found")
+		return
+	}
 
 	if len(lines) > 0 {
 		firstPodName := strings.Fields(lines[0])[0]
@@ -83,7 +94,7 @@ func main() {
 func isPortParamValid(ports string) bool {
 	//verify ports
 	if len(ports) == 0 || !strings.Contains(ports, ":") || (len(strings.Split(ports, ":")) != 2) {
-		fmt.Println("Please specify the ports in the format of toPort:fromPort")
+		fmt.Println("Please specify the ports in the format of p=toPort:fromPort")
 		return false
 	}
 	return true
