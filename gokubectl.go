@@ -27,7 +27,7 @@ func main() {
 	}
 
 	// Create the kubectl command
-	kubectlCmd := exec.Command("/home/rado/sw/go/gokubectl/kubectl", "get", "pods")
+	kubectlCmd := exec.Command("kubectl", "get", "pods")
 
 	// Create a pipe for the grep command
 	grepCmd := exec.Command("grep", podName)
@@ -68,7 +68,7 @@ func main() {
 
 	if len(lines) > 0 {
 		firstPodName := strings.Fields(lines[0])[0]
-		commandString := fmt.Sprintf("kubectl port-forward %s %s", ports, firstPodName)
+		commandString := fmt.Sprintf("kubectl port-forward %s %s", firstPodName, ports)
 		// Print the command string
 		fmt.Print(commandString)
 
