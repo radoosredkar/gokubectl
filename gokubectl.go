@@ -16,18 +16,38 @@ func main() {
 	flag.StringVar(&podName, "pn", "", "partial of full podname in the format of -pn=nginx")
 	var ports string
 	flag.StringVar(&ports, "p", "", "ports in the format of -p=toPort:fromPort")
+	var action string
+	flag.StringVar(&action, "action", "", "port-forward or exec")
+	var test bool
+	flag.BoolVar(&test, "test", false, "kubectl is set to /home/rado/sw/go/gokubectl/kubectl")
+
 	flag.Parse()
+
+	if action != "port-forward" && action != "exec" {
+		fmt.Println("Please specify the action as port-forward or exec")
+		return
+	}
 
 	if podName == "" {
 		fmt.Println("Please specify the pod name as pn=<podname>")
 		return
 	}
-	if !isPortParamValid(ports) {
-		return
+
+	if action == "port-forward" {
+		if !isPortParamValid(ports) {
+			return
+		}
+
+	}
+	// Create the kubectl command
+	var kubectl string
+	if test {
+		kubectl = "/home/rado/sw/go/gokubectl/kubectl"
+	} else {
+		kubectl = "kubectl"
 	}
 
-	// Create the kubectl command
-	kubectlCmd := exec.Command("kubectl", "get", "pods")
+	kubectlCmd := exec.Command(kubectl, "get", "pods")
 
 	// Create a pipe for the grep command
 	grepCmd := exec.Command("grep", podName)
@@ -66,29 +86,37 @@ func main() {
 		return
 	}
 
+	var commandString string
 	if len(lines) > 0 {
 		firstPodName := strings.Fields(lines[0])[0]
-		commandString := fmt.Sprintf("kubectl port-forward %s %s", firstPodName, ports)
-		// Print the command string
-		fmt.Print(commandString)
-
-		// Wait for the user to press ENTER
-		fmt.Println("\nPress ENTER to execute the command...")
-		bufio.NewReader(os.Stdin).ReadBytes('\n')
-
-		// Execute the command string
-		execCmd := exec.Command("/bin/bash", "-c", commandString)
-		execCmd.Stdout = os.Stdout
-		execCmd.Stderr = os.Stderr
-		err = execCmd.Run()
-		if err != nil {
-			fmt.Println("Error executing command string:", err)
+		switch action {
+		case "port-forward":
+			commandString = fmt.Sprintf("kubectl port-forward %s %s", firstPodName, ports)
+		case "exec":
+			commandString = fmt.Sprintf("kubectl exec -it %s /bin/bash", firstPodName)
+		default:
+			fmt.Printf("Invalid action %s", action)
 			return
 		}
+	}
+	// Print the command string
+	fmt.Print(commandString)
 
-		fmt.Println("Command executed successfully.")
+	// Wait for the user to press ENTER
+	fmt.Println("\nPress ENTER to execute the command...")
+	bufio.NewReader(os.Stdin).ReadBytes('\n')
+
+	// Execute the command string
+	execCmd := exec.Command("/bin/bash", "-c", commandString)
+	execCmd.Stdout = os.Stdout
+	execCmd.Stderr = os.Stderr
+	err = execCmd.Run()
+	if err != nil {
+		fmt.Println("Error executing command string:", err)
+		return
 	}
 
+	fmt.Println("Command executed successfully.")
 }
 
 func isPortParamValid(ports string) bool {
