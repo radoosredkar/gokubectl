@@ -93,7 +93,7 @@ func main() {
 		case "port-forward":
 			commandString = fmt.Sprintf("kubectl port-forward %s %s", firstPodName, ports)
 		case "exec":
-			commandString = fmt.Sprintf("kubectl exec -it %s /bin/bash", firstPodName)
+			commandString = fmt.Sprintf("kubectl exec -it %s bash", firstPodName)
 		default:
 			fmt.Printf("Invalid action %s", action)
 			return
@@ -108,6 +108,7 @@ func main() {
 
 	// Execute the command string
 	execCmd := exec.Command("/bin/bash", "-c", commandString)
+	execCmd.Stdin = os.Stdin
 	execCmd.Stdout = os.Stdout
 	execCmd.Stderr = os.Stderr
 	err = execCmd.Run()
