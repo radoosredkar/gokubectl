@@ -9,5 +9,7 @@ backend-6c6b49f5f7-pj9sb             1/1     Running            1          15m
 database-7f7c64fdfd-vfnc2            1/1     Running            0          20m
 cache-8c8d54dd9f-nj6z7               1/1     Running            0          25m
 logging-9c9f64fdfd-kc8l3             1/1     Running            2          30m
+logging-9c9f64fdfd-kc8l4             1/1     Running            2          31m
+logging-9c9f64fdfd-kc8l5             1/1     Running            2          31m
 auth-service-7f7c54d8d9-8z9x2        1/1     CrashLoopBackOff   5          35m"
 

@@ -23,7 +23,7 @@ func main() {
 
 	flag.Parse()
 
-	if action != "port-forward" && action != "exec" {
+	if action != "port-forward" && action != "exec" && action != "stern" {
 		fmt.Println("Please specify the action as port-forward or exec")
 		return
 	}
@@ -48,6 +48,9 @@ func main() {
 	}
 
 	kubectlCmd := exec.Command(kubectl, "get", "pods")
+	if action == "stern" {
+		kubectlCmd = exec.Command(kubectl, "get", "pods", "--sort-by=.metadata.creationTimestamp")
+	}
 
 	// Create a pipe for the grep command
 	grepCmd := exec.Command("grep", podName)
@@ -89,11 +92,14 @@ func main() {
 	var commandString string
 	if len(lines) > 0 {
 		firstPodName := strings.Fields(lines[0])[0]
+		lastPodName := strings.Fields(lines[len(lines)-2])[0]
 		switch action {
 		case "port-forward":
 			commandString = fmt.Sprintf("kubectl port-forward %s %s", firstPodName, ports)
 		case "exec":
 			commandString = fmt.Sprintf("kubectl exec -it %s bash", firstPodName)
+		case "stern":
+			commandString = fmt.Sprintf("stern %s ", lastPodName)
 		default:
 			fmt.Printf("Invalid action %s", action)
 			return
